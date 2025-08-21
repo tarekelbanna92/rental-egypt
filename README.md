@@ -53,3 +53,4 @@ heroku domains:add rentalegypt.com
 #  - Use ALIAS/ANAME (or root flattening) for apex rentalegypt.com -> the same target
 # If ALIAS/ANAME isn't supported, point root to www using your DNS provider's URL redirect.
 ```
+# rental-egypt
