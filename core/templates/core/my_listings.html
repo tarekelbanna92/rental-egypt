@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>My listings</h2>
+<div class="row row-cols-1 row-cols-md-2 g-3 mt-2">
+  {% for l in listings %}
+  <div class="col">
+    <div class="card h-100">
+      {% if l.image_url %}
+        <img src="{{ l.image_url }}" class="card-img-top" alt="{{ l.title }}" style="object-fit:cover;height:180px;">
+      {% endif %}
+      <div class="card-body">
+        <h5 class="card-title mb-0">{{ l.title }}</h5>
+        <small class="text-muted">{{ l.city }}</small>
+        <div class="mt-2"><a href="/listing/{{ l.id }}/" class="btn btn-outline-primary btn-sm">Open</a></div>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+    <p>No listings yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}

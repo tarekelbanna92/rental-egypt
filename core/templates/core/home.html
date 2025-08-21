@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="mb-3">Find your stay</h1>
+<form class="row g-2 mb-4" method="get">
+  <div class="col-sm-8">
+    <input type="text" class="form-control" name="q" placeholder="Search by city or listing title" value="{{ q }}">
+  </div>
+  <div class="col-sm-4 d-grid">
+    <button class="btn btn-outline-primary">Search</button>
+  </div>
+</form>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+  {% for l in listings %}
+  <div class="col">
+    <div class="card h-100">
+      {% if l.image_url %}
+        <img src="{{ l.image_url }}" class="card-img-top" alt="{{ l.title }}" style="object-fit:cover;height:200px;">
+      {% endif %}
+      <div class="card-body">
+        <h5 class="card-title">{{ l.title }}</h5>
+        <p class="card-text text-muted mb-1">{{ l.city }}</p>
+        <p class="card-text">EGP {{ l.price_per_night }} / night</p>
+        <a href="/listing/{{ l.id }}/" class="btn btn-primary">View</a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+    <p>No listings yet. Hosts can create the first one!</p>
+  {% endfor %}
+</div>
+{% endblock %}

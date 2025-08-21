@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>New listing</h2>
+<form method="post" class="mt-3" style="max-width:720px;">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button class="btn btn-primary">Create listing</button>
+</form>
+{% endblock %}
