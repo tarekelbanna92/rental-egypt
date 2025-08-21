@@ -1,14 +1,16 @@
 # Python
 __pycache__/
-*.py[cod]
-*.sqlite3
+*.pyc
+
+# Virtual environment
 .venv/
-.env
+env/
 
-# Django
-staticfiles/
-media/
-
-# VSCode/OSX
-.vscode/
+# Mac
 .DS_Store
+
+# SQLite (local dev DB)
+db.sqlite3
+
+# VS Code settings
+.vscode/
