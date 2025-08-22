@@ -8,37 +8,73 @@ from .models import Listing, Booking, Profile
 from .forms import SignUpForm, ListingForm, BookingForm
 from django.core.paginator import Paginator
 from django.db.models import Q
+from datetime import datetime
+
+
+DATE_FMT = "%Y-%m-%d"
 
 def home(request):
+    # New Airbnb-style params
+    destination = request.GET.get('destination', '').strip()
+    check_in_str = request.GET.get('check_in', '').strip()
+    check_out_str = request.GET.get('check_out', '').strip()
+    guests = request.GET.get('guests', '').strip()
+
+    # (optional) keep your old free-text search
     q = request.GET.get('q', '').strip()
-    city = request.GET.get('city', '').strip()
-    min_price = request.GET.get('min_price', '').strip()
-    max_price = request.GET.get('max_price', '').strip()
-    page = request.GET.get('page', 1)
 
     listings = Listing.objects.all().order_by('-created_at')
 
+    # destination dropdown filter
+    if destination:
+        listings = listings.filter(city__iexact=destination)  # exact city from dropdown
+
+    # optional keyword search (title/desc/city)
     if q:
         listings = listings.filter(
             Q(title__icontains=q) | Q(city__icontains=q) | Q(description__icontains=q)
         )
-    if city:
-        listings = listings.filter(city__icontains=city)
-    if min_price:
-        listings = listings.filter(price_per_night__gte=min_price)
-    if max_price:
-        listings = listings.filter(price_per_night__lte=max_price)
 
-    paginator = Paginator(listings, 9)  # 9 cards per page
+    # date filtering: exclude listings that have an APPROVED overlapping booking
+    check_in = check_out = None
+    if check_in_str and check_out_str:
+        try:
+            check_in = datetime.strptime(check_in_str, DATE_FMT).date()
+            check_out = datetime.strptime(check_out_str, DATE_FMT).date()
+            if check_in < check_out:
+                listings = listings.exclude(
+                    bookings__status=Booking.Status.APPROVED,
+                    bookings__check_in__lt=check_out,
+                    bookings__check_out__gt=check_in,
+                )
+        except ValueError:
+            # bad date format: ignore dates
+            pass
+
+    # NOTE: we don’t have a "max guests" field on Listing yet,
+    # so we collect "guests" for the UI but can’t filter capacity.
+    # (We can add a capacity field later if you want.)
+
+    # build city list for dropdown
+    cities = (Listing.objects
+              .values_list('city', flat=True)
+              .distinct()
+              .order_by('city'))
+
+    # paginate
+    page = request.GET.get('page', 1)
+    paginator = Paginator(listings, 9)
     page_obj = paginator.get_page(page)
 
     return render(request, 'core/home.html', {
         'listings': page_obj.object_list,
         'page_obj': page_obj,
-        'q': q,
-        'city': city,
-        'min_price': min_price,
-        'max_price': max_price,
+        'cities': cities,
+        'destination': destination,
+        'check_in': check_in_str,
+        'check_out': check_out_str,
+        'guests': guests,
+        'q': q,  # keep if you want the keyword box too
     })
 
 
