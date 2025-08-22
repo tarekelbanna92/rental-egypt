@@ -1,4 +1,4 @@
-# Rental Egypt — Django + Heroku
+# Rental Egypt — Django
 
 ## Local Setup
 
