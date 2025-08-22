@@ -17,9 +17,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core',
     'cloudinary',
     'cloudinary_storage',
+    'core',
+    
 ]
 
 MIDDLEWARE = [
@@ -88,12 +89,12 @@ LOGOUT_REDIRECT_URL = 'home'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 
-# Media files
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-# Cloudinary settings (from your account)
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'dguvclaay',
-    'API_KEY': '946413134214351',
-    'API_SECRET': 'S7mCy09B24YlepbXQ0VUGZKp7jI',
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
 }
+
+MEDIA_URL = '/media/'
