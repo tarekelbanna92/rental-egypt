@@ -107,14 +107,14 @@ def create_listing(request):
         messages.error(request, 'Only hosts can create listings.')
         return redirect('home')
     if request.method == 'POST':
-        form = ListingForm(request.POST)
-        if form.is_valid():
-            listing = form.save(commit=False)
-            listing.host = request.user
-            listing.save()
-            messages.success(request, 'Listing created!')
-            return redirect('listing_detail', pk=listing.pk)
-    else:
+        form = ListingForm(request.POST, request.FILES)  # <-- add request.FILES here
+    if form.is_valid():
+        listing = form.save(commit=False)
+        listing.host = request.user
+        listing.save()
+        messages.success(request, 'Listing created!')
+        return redirect('listing_detail', pk=listing.pk)
+
         form = ListingForm()
     return render(request, 'core/create_listing.html', { 'form': form })
 

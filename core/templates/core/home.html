@@ -1,17 +1,10 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
 <h1 class="mb-3">Find your stay</h1>
 
-{% if l.image %}
-  <img src="{{ l.image.url }}" class="card-img-top" alt="{{ l.title }}" style="object-fit:cover;height:200px;">
-{% else %}
-  <img src="{% static 'img/placeholder.jpg' %}" class="card-img-top" alt="placeholder" style="object-fit:cover;height:200px;">
-{% endif %}
-
-
 <!-- Airbnb-style search bar -->
 <form class="row g-2 align-items-end mb-4" method="get">
-  <!-- Destination dropdown populated from DB -->
   <div class="col-md-4">
     <label class="form-label fw-semibold">Destination</label>
     <select class="form-select" name="destination">
@@ -32,8 +25,6 @@
     <input type="date" class="form-control" name="check_out" value="{{ check_out }}">
   </div>
 
-  
-
   <div class="col-md-2">
     <label class="form-label fw-semibold">Guests</label>
     <input type="number" min="1" class="form-control" name="guests" value="{{ guests|default:'1' }}">
@@ -43,10 +34,7 @@
     <button class="btn btn-primary">Search</button>
   </div>
 
-  <!-- Optional: keep your old keyword search as a small link/field -->
-  {% if q %}
-    <input type="hidden" name="q" value="{{ q }}">
-  {% endif %}
+  {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
 </form>
 
 <!-- Results grid -->
@@ -54,8 +42,10 @@
   {% for l in listings %}
   <div class="col">
     <div class="card h-100">
-      {% if l.image_url %}
-        <img src="{{ l.image_url }}" class="card-img-top" alt="{{ l.title }}" style="object-fit:cover;height:200px;">
+      {% if l.image %}
+        <img src="{{ l.image.url }}" class="card-img-top" alt="{{ l.title }}" style="object-fit:cover;height:200px;">
+      {% else %}
+        <img src="{% static 'img/placeholder.jpg' %}" class="card-img-top" alt="placeholder" style="object-fit:cover;height:200px;">
       {% endif %}
       <div class="card-body">
         <h5 class="card-title">{{ l.title }}</h5>
@@ -70,7 +60,6 @@
   {% endfor %}
 </div>
 
-<!-- Pager -->
 {% if page_obj and page_obj.paginator.num_pages > 1 %}
 <nav class="mt-4">
   <ul class="pagination justify-content-center">

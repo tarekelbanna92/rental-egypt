@@ -9,7 +9,7 @@ class ProfileAdmin(admin.ModelAdmin):
 class ListingAdmin(admin.ModelAdmin):
     list_display = ("title", "city", "host", "price_per_night", "created_at")
     search_fields = ("title", "city", "host__username")
-
+    
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
     list_display = ("listing", "guest", "check_in", "check_out", "status", "created_at")

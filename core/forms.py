@@ -14,7 +14,7 @@ class SignUpForm(UserCreationForm):
 class ListingForm(forms.ModelForm):
     class Meta:
         model = Listing
-        fields = ("title", "description", "city", "address", "price_per_night", "image_url")
+        fields = ("title", "description", "city", "address", "price_per_night", "image")
 
 class DateInput(forms.DateInput):
     input_type = 'date'
