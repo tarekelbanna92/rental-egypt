@@ -1,11 +1,21 @@
 {% extends 'base.html' %}
 {% block content %}
 <h1 class="mb-3">Find your stay</h1>
+
 <form class="row g-2 mb-4" method="get">
-  <div class="col-sm-8">
-    <input type="text" class="form-control" name="q" placeholder="Search by city or listing title" value="{{ q }}">
+  <div class="col-md-3">
+    <input type="text" class="form-control" name="q" placeholder="Keyword (title/description/city)" value="{{ q }}">
   </div>
-  <div class="col-sm-4 d-grid">
+  <div class="col-md-3">
+    <input type="text" class="form-control" name="city" placeholder="City" value="{{ city }}">
+  </div>
+  <div class="col-md-2">
+    <input type="number" class="form-control" name="min_price" placeholder="Min price" min="0" value="{{ min_price }}">
+  </div>
+  <div class="col-md-2">
+    <input type="number" class="form-control" name="max_price" placeholder="Max price" min="0" value="{{ max_price }}">
+  </div>
+  <div class="col-md-2 d-grid">
     <button class="btn btn-outline-primary">Search</button>
   </div>
 </form>
@@ -29,4 +39,32 @@
     <p>No listings yet. Hosts can create the first one!</p>
   {% endfor %}
 </div>
+
+{% if page_obj and page_obj.paginator.num_pages > 1 %}
+<nav class="mt-4">
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link"
+           href="?q={{ q }}&city={{ city }}&min_price={{ min_price }}&max_price={{ max_price }}&page={{ page_obj.previous_page_number }}">Previous</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">Previous</span></li>
+    {% endif %}
+
+    <li class="page-item disabled">
+      <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    </li>
+
+    {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link"
+           href="?q={{ q }}&city={{ city }}&min_price={{ min_price }}&max_price={{ max_price }}&page={{ page_obj.next_page_number }}">Next</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">Next</span></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
 {% endblock %}

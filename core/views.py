@@ -6,17 +6,42 @@ from django.contrib import messages
 
 from .models import Listing, Booking, Profile
 from .forms import SignUpForm, ListingForm, BookingForm
-
-# Home + search
+from django.core.paginator import Paginator
+from django.db.models import Q
 
 def home(request):
     q = request.GET.get('q', '').strip()
+    city = request.GET.get('city', '').strip()
+    min_price = request.GET.get('min_price', '').strip()
+    max_price = request.GET.get('max_price', '').strip()
+    page = request.GET.get('page', 1)
+
     listings = Listing.objects.all().order_by('-created_at')
+
     if q:
         listings = listings.filter(
             Q(title__icontains=q) | Q(city__icontains=q) | Q(description__icontains=q)
         )
-    return render(request, 'core/home.html', { 'listings': listings, 'q': q })
+    if city:
+        listings = listings.filter(city__icontains=city)
+    if min_price:
+        listings = listings.filter(price_per_night__gte=min_price)
+    if max_price:
+        listings = listings.filter(price_per_night__lte=max_price)
+
+    paginator = Paginator(listings, 9)  # 9 cards per page
+    page_obj = paginator.get_page(page)
+
+    return render(request, 'core/home.html', {
+        'listings': page_obj.object_list,
+        'page_obj': page_obj,
+        'q': q,
+        'city': city,
+        'min_price': min_price,
+        'max_price': max_price,
+    })
+
+
 
 # Auth
 
