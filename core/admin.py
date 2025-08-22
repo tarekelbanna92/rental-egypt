@@ -1,6 +1,11 @@
 from django.contrib import admin
 from .models import Profile, Listing, Booking
 
+@admin.register(Listing)
+class ListingAdmin(admin.ModelAdmin):
+    list_display = ('title', 'city', 'price_per_night')
+
+
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ("user", "role")
