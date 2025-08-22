@@ -7,7 +7,7 @@ services:
     startCommand: "gunicorn rental_egypt.wsgi:application --log-file -"
     envVars:
       - key: PYTHON_VERSION
-        value: 3.12
+        value: 3.12.5
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
