@@ -22,6 +22,8 @@ services:
           name: rental-egypt-db
           property: connectionString
     autoDeploy: true
+    postDeployCommand: "python manage.py migrate"
+
 
 databases:
   - name: rental-egypt-db
