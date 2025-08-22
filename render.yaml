@@ -2,7 +2,7 @@ services:
   - type: web
     name: rental-egypt
     env: python
-    plan: starter
+    plan: free
     buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput"
     startCommand: "gunicorn rental_egypt.wsgi:application --log-file -"
     envVars:
@@ -22,4 +22,4 @@ services:
 
 databases:
   - name: rental-egypt-db
-    plan: starter
+    plan: free
