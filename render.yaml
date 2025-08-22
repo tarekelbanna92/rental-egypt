@@ -6,6 +6,8 @@ services:
     buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput"
     startCommand: "gunicorn rental_egypt.wsgi:application --log-file -"
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.12
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
