@@ -1,5 +1,4 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
 from django.db.models import Q
@@ -13,35 +12,6 @@ from django.views.decorators.http import require_POST
 
 
 DATE_FMT = "%Y-%m-%d"
-
-def health_check(request):
-    """Simple health check endpoint for deployment debugging"""
-    try:
-        # Test database connection
-        from django.db import connection
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT 1")
-        
-        # Test if key models exist
-        from .models import Listing, Profile, Booking
-        listing_count = Listing.objects.count()
-        profile_count = Profile.objects.count()
-        booking_count = Booking.objects.count()
-        
-        return JsonResponse({
-            'status': 'healthy',
-            'database': 'connected',
-            'models': {
-                'listings': listing_count,
-                'profiles': profile_count,
-                'bookings': booking_count
-            }
-        })
-    except Exception as e:
-        return JsonResponse({
-            'status': 'unhealthy',
-            'error': str(e)
-        }, status=500)
 
 def home(request):
     try:
