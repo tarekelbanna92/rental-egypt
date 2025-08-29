@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load cloudinary %}
+{# Use standard img for prod reliability #}
 {% block content %}
 <h2>My listings</h2>
 <div class="row row-cols-1 row-cols-md-2 g-3 mt-2">
@@ -8,9 +8,9 @@
     <div class="card h-100">
       {% with first=l.cover_image %}
         {% if first %}
-          {% cloudinary first.image width=600 height=360 crop='fill' gravity='auto' class='card-img-top' alt=l.title %}
+          <img src="{{ first.image.url }}" class="card-img-top" alt="{{ l.title }}" style="object-fit:cover;height:180px;">
         {% elif l.image %}
-          {% cloudinary l.image width=600 height=360 crop='fill' gravity='auto' class='card-img-top' alt=l.title %}
+          <img src="{{ l.image.url }}" class="card-img-top" alt="{{ l.title }}" style="object-fit:cover;height:180px;">
         {% elif l.image_url %}
           <img src="{{ l.image_url }}" class="card-img-top" alt="{{ l.title }}" style="object-fit:cover;height:360px;">
         {% endif %}
