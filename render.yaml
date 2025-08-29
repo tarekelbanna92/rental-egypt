@@ -3,7 +3,7 @@ services:
     name: rental-egypt
     env: python
     buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput"
-    startCommand: "python manage.py migrate --noinput && gunicorn rental_egypt.wsgi:application --preload --bind 0.0.0.0:$PORT --log-file -"
+    startCommand: "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn rental_egypt.wsgi:application --preload --bind 0.0.0.0:$PORT --log-file -"
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.5
@@ -21,6 +21,8 @@ services:
         fromDatabase:
           name: rental-egypt-db
           property: connectionString
+      - key: DJANGO_SETTINGS_MODULE
+        value: "rental_egypt.settings"
     autoDeploy: true
     postDeployCommand: "python manage.py migrate"
 
