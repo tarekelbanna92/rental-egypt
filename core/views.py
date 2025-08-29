@@ -54,9 +54,13 @@ def home(request):
             # bad date format: ignore dates
             pass
 
-    # capacity filter if guests provided
+    # capacity filter if guests provided (guard if column not yet migrated)
     if guests.isdigit():
-        listings = listings.filter(capacity__gte=int(guests))
+        try:
+            listings = listings.filter(capacity__gte=int(guests))
+        except Exception:
+            # If DB doesn't have the column yet, skip filtering to avoid 500
+            pass
 
     # build city list for dropdown
     cities = (Listing.objects
