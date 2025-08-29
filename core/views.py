@@ -7,6 +7,7 @@ from .models import Listing, Booking, Profile, ListingImage
 from .forms import SignUpForm, ListingForm, BookingForm, ListingImageUploadForm
 from django.core.paginator import Paginator
 from datetime import datetime
+from django.db import connection
 from django.views.decorators.http import require_POST
 
 
@@ -54,12 +55,16 @@ def home(request):
             # bad date format: ignore dates
             pass
 
-    # capacity filter if guests provided (guard if column not yet migrated)
+    # capacity filter if guests provided (check DB schema to avoid 500 before migration)
     if guests.isdigit():
+        # Inspect DB table columns safely
         try:
-            listings = listings.filter(capacity__gte=int(guests))
+            with connection.cursor() as cursor:
+                cols = [col.name for col in connection.introspection.get_table_description(cursor, Listing._meta.db_table)]
+            if 'capacity' in cols:
+                listings = listings.filter(capacity__gte=int(guests))
         except Exception:
-            # If DB doesn't have the column yet, skip filtering to avoid 500
+            # Any unexpected DB error: skip the filter to keep the page working
             pass
 
     # build city list for dropdown
