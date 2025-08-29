@@ -25,6 +25,10 @@ services:
         value: "rental_egypt.settings"
     autoDeploy: true
     postDeployCommand: "python manage.py migrate"
+    # Force redeploy with timestamp
+    buildFilter:
+      paths:
+        - "**/*"
 
 
 databases:
