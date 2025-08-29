@@ -14,80 +14,102 @@ from django.views.decorators.http import require_POST
 DATE_FMT = "%Y-%m-%d"
 
 def home(request):
-    # New Airbnb-style params
-    destination = request.GET.get('destination', '').strip()
-    check_in_str = request.GET.get('check_in', '').strip()
-    check_out_str = request.GET.get('check_out', '').strip()
-    guests = request.GET.get('guests', '').strip()
+    try:
+        # New Airbnb-style params
+        destination = request.GET.get('destination', '').strip()
+        check_in_str = request.GET.get('check_in', '').strip()
+        check_out_str = request.GET.get('check_out', '').strip()
+        guests = request.GET.get('guests', '').strip()
 
-    # (optional) keep your old free-text search
-    q = request.GET.get('q', '').strip()
+        # (optional) keep your old free-text search
+        q = request.GET.get('q', '').strip()
 
-    listings = (Listing.objects
-                .all()
-                .order_by('-created_at')
-                .select_related('host')
-                .prefetch_related('images'))
-
-    # destination dropdown filter
-    if destination:
-        listings = listings.filter(city__iexact=destination)  # exact city from dropdown
-
-    # optional keyword search (title/desc/city)
-    if q:
-        listings = listings.filter(
-            Q(title__icontains=q) | Q(city__icontains=q) | Q(description__icontains=q)
-        )
-
-    # date filtering: exclude listings that have an APPROVED overlapping booking
-    check_in = check_out = None
-    if check_in_str and check_out_str:
+        # Wrap database queries in try-catch to handle schema issues
         try:
-            check_in = datetime.strptime(check_in_str, DATE_FMT).date()
-            check_out = datetime.strptime(check_out_str, DATE_FMT).date()
-            if check_in < check_out:
-                listings = listings.exclude(
-                    bookings__status=Booking.Status.APPROVED,
-                    bookings__check_in__lt=check_out,
-                    bookings__check_out__gt=check_in,
+            listings = (Listing.objects
+                        .all()
+                        .order_by('-created_at')
+                        .select_related('host')
+                        .prefetch_related('images'))
+
+            # destination dropdown filter
+            if destination:
+                listings = listings.filter(city__iexact=destination)  # exact city from dropdown
+
+            # optional keyword search (title/desc/city)
+            if q:
+                listings = listings.filter(
+                    Q(title__icontains=q) | Q(city__icontains=q) | Q(description__icontains=q)
                 )
-        except ValueError:
-            # bad date format: ignore dates
-            pass
 
-    # capacity filter if guests provided (check DB schema to avoid 500 before migration)
-    if guests.isdigit():
-        # Inspect DB table columns safely
-        try:
-            with connection.cursor() as cursor:
-                cols = [col.name for col in connection.introspection.get_table_description(cursor, Listing._meta.db_table)]
-            if 'capacity' in cols:
-                listings = listings.filter(capacity__gte=int(guests))
-        except Exception:
-            # Any unexpected DB error: skip the filter to keep the page working
-            pass
+            # date filtering: exclude listings that have an APPROVED overlapping booking
+            check_in = check_out = None
+            if check_in_str and check_out_str:
+                try:
+                    check_in = datetime.strptime(check_in_str, DATE_FMT).date()
+                    check_out = datetime.strptime(check_out_str, DATE_FMT).date()
+                    if check_in < check_out:
+                        listings = listings.exclude(
+                            bookings__status=Booking.Status.APPROVED,
+                            bookings__check_in__lt=check_out,
+                            bookings__check_out__gt=check_in,
+                        )
+                except ValueError:
+                    # bad date format: ignore dates
+                    pass
 
-    # build city list for dropdown
-    cities = (Listing.objects
-              .values_list('city', flat=True)
-              .distinct()
-              .order_by('city'))
+            # capacity filter if guests provided (check DB schema to avoid 500 before migration)
+            if guests.isdigit():
+                # Inspect DB table columns safely
+                try:
+                    with connection.cursor() as cursor:
+                        cols = [col.name for col in connection.introspection.get_table_description(cursor, Listing._meta.db_table)]
+                    if 'capacity' in cols:
+                        listings = listings.filter(capacity__gte=int(guests))
+                except Exception:
+                    # Any unexpected DB error: skip the filter to keep the page working
+                    pass
 
-    # paginate
-    page = request.GET.get('page', 1)
-    paginator = Paginator(listings, 9)
-    page_obj = paginator.get_page(page)
+            # build city list for dropdown
+            cities = (Listing.objects
+                      .values_list('city', flat=True)
+                      .distinct()
+                      .order_by('city'))
 
-    return render(request, 'core/home.html', {
-        'listings': page_obj.object_list,
-        'page_obj': page_obj,
-        'cities': cities,
-        'destination': destination,
-        'check_in': check_in_str,
-        'check_out': check_out_str,
-        'guests': guests,
-        'q': q,  # keep if you want the keyword box too
-    })
+        except Exception as e:
+            # If there's a DB schema issue, return empty results
+            listings = Listing.objects.none()
+            cities = []
+            messages.warning(request, "Database is being prepared. Please try again in a moment.")
+
+        # paginate
+        page = request.GET.get('page', 1)
+        paginator = Paginator(listings, 9)
+        page_obj = paginator.get_page(page)
+
+        return render(request, 'core/home.html', {
+            'listings': page_obj.object_list,
+            'page_obj': page_obj,
+            'cities': cities,
+            'destination': destination,
+            'check_in': check_in_str,
+            'check_out': check_out_str,
+            'guests': guests,
+            'q': q,  # keep if you want the keyword box too
+        })
+    except Exception as e:
+        # Catch any other unexpected errors and return a safe response
+        messages.error(request, "Something went wrong. Please try again.")
+        return render(request, 'core/home.html', {
+            'listings': [],
+            'page_obj': None,
+            'cities': [],
+            'destination': '',
+            'check_in': '',
+            'check_out': '',
+            'guests': '',
+            'q': '',
+        })
 
 
 
