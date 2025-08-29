@@ -91,8 +91,10 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-USE_X_FORWARDED_HOST = True
+# Only set these if we're behind a trusted proxy (Render)
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    USE_X_FORWARDED_HOST = True
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
@@ -110,7 +112,8 @@ if _cloud_name and _cloud_key and _cloud_secret:
 MEDIA_URL = '/media/'
 
 # Security settings suitable for production when DEBUG is False
-SECURE_SSL_REDIRECT = not DEBUG
+# Only redirect to HTTPS if we're sure we're behind a proxy (Render)
+SECURE_SSL_REDIRECT = False  # Let Render handle HTTPS
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0
