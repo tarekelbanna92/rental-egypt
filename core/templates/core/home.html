@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load cloudinary %}
 {% block content %}
 <h1 class="mb-3">Find your stay</h1>
 
@@ -42,13 +43,17 @@
   {% for l in listings %}
   <div class="col">
     <div class="card h-100">
-      {% if l.image %}
-        <img src="{{ l.image.url }}" class="card-img-top" alt="{{ l.title }}" style="object-fit:cover;height:200px;">
-      {% elif l.image_url %}
-       <img src="{{ l.image_url }}" class="card-img-top" alt="{{ l.title }}" style="object-fit:cover;height:200px;">
-      {% else %}
-       <img src="{% static 'img/placeholder.jpg' %}" class="card-img-top" alt="placeholder" style="object-fit:cover;height:200px;">
-      {% endif %}
+      {% with first=l.cover_image %}
+        {% if first %}
+          {% cloudinary first.image width=600 height=400 crop='fill' gravity='auto' class='card-img-top' alt=l.title %}
+        {% elif l.image %}
+          {% cloudinary l.image width=600 height=400 crop='fill' gravity='auto' class='card-img-top' alt=l.title %}
+        {% elif l.image_url %}
+          <img src="{{ l.image_url }}" class="card-img-top" alt="{{ l.title }}" style="object-fit:cover;height:400px;">
+        {% else %}
+          <img src="{% static 'img/placeholder.jpg' %}" class="card-img-top" alt="placeholder" style="object-fit:cover;height:200px;">
+        {% endif %}
+      {% endwith %}
 
       <div class="card-body">
         <h5 class="card-title">{{ l.title }}</h5>

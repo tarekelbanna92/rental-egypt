@@ -10,6 +10,10 @@ urlpatterns = [
 
     path('listing/new/', views.create_listing, name='create_listing'),
     path('listing/<int:pk>/', views.listing_detail, name='listing_detail'),
+    path('listing/<int:pk>/images/upload/', views.upload_listing_images, name='upload_listing_images'),
+    path('listing/<int:pk>/images/reorder/', views.reorder_listing_images, name='reorder_listing_images'),
+    path('listing/<int:pk>/images/<int:image_id>/cover/', views.set_cover_image, name='set_cover_image'),
+    path('listing/<int:pk>/images/<int:image_id>/delete/', views.delete_listing_image, name='delete_listing_image'),
 
     path('host/listings/', views.my_listings, name='my_listings'),
     path('host/bookings/', views.host_bookings, name='host_bookings'),

@@ -1,8 +1,12 @@
 from pathlib import Path
 import os
 import dj_database_url
-
+from pathlib import Path
+import os
+from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
+
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key')
 DEBUG = os.environ.get('DEBUG', '1') == '1'
@@ -83,6 +87,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
@@ -91,10 +96,23 @@ USE_X_FORWARDED_HOST = True
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
-}
+# Prefer CLOUDINARY_URL if present; use explicit keys only when provided
+_cloud_name = os.getenv('CLOUDINARY_CLOUD_NAME')
+_cloud_key = os.getenv('CLOUDINARY_API_KEY')
+_cloud_secret = os.getenv('CLOUDINARY_API_SECRET')
+if _cloud_name and _cloud_key and _cloud_secret:
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': _cloud_name,
+        'API_KEY': _cloud_key,
+        'API_SECRET': _cloud_secret,
+    }
 
 MEDIA_URL = '/media/'
+
+# Security settings suitable for production when DEBUG is False
+SECURE_SSL_REDIRECT = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0
+SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
+SECURE_HSTS_PRELOAD = not DEBUG
