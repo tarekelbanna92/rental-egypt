@@ -65,11 +65,6 @@ DATABASES = {
 # Override with DATABASE_URL in production
 if os.environ.get('DATABASE_URL'):
     DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=not DEBUG)
-    # Debug database connection
-    if DEBUG:
-        print(f"Database config: {DATABASES['default']}")
-else:
-    print("No DATABASE_URL found, using SQLite")
 
 AUTH_PASSWORD_VALIDATORS = [
     { 'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator' },
@@ -123,7 +118,3 @@ SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0
 SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
 SECURE_HSTS_PRELOAD = not DEBUG
 
-# Startup check
-print(f"DEBUG: {DEBUG}")
-print(f"ALLOWED_HOSTS: {ALLOWED_HOSTS}")
-print(f"Database engine: {DATABASES['default']['ENGINE']}")
